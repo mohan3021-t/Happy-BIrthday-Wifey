@@ -1,0 +1,909 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Happy 18th Birthday, My Love</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: linear-gradient(135deg, #ffafbd, #ffc3a0, #ffd8cb);
+            height: 100vh;
+            overflow: hidden;
+            color: #5a2a27;
+            touch-action: manipulation;
+        }
+
+        #app {
+            position: relative;
+            width: 100%;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Countdown screen */
+        #countdown-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            background: radial-gradient(circle, #ff7eb3, #ff758c, #ff7eb3);
+            transition: transform 1.2s ease-in-out;
+        }
+
+        .countdown-title {
+            font-family: 'Dancing Script', cursive;
+            font-size: 3rem;
+            color: white;
+            text-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+            margin-bottom: 2rem;
+            text-align: center;
+            animation: pulse 2s infinite;
+        }
+
+        #countdown-number {
+            font-size: 12rem;
+            font-weight: 700;
+            color: white;
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.8);
+            position: relative;
+        }
+
+        #countdown-number::after {
+            content: '';
+            position: absolute;
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            animation: ripple 1.5s ease-out infinite;
+        }
+
+        .countdown-hint {
+            position: absolute;
+            bottom: 30px;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 1rem;
+            text-align: center;
+            width: 80%;
+            animation: fadeInOut 3s infinite;
+        }
+
+        /* Journey container */
+        #journey-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: none;
+            flex-direction: column;
+            background: linear-gradient(135deg, #fff5f7, #ffe8e8);
+        }
+
+        /* Step screens */
+        .step-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 1s ease-in-out;
+            z-index: 10;
+        }
+
+        .step-screen.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .step-content {
+            background: rgba(255, 255, 255, 0.92);
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            text-align: center;
+            position: relative;
+            transform: scale(0.9);
+            transition: transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 25;
+        }
+
+        .step-screen.active .step-content {
+            transform: scale(1);
+        }
+
+        .step-number {
+            position: absolute;
+            top: -15px;
+            right: 20px;
+            width: 40px;
+            height: 40px;
+            background: #ff758c;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            font-size: 1.2rem;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            z-index: 30;
+        }
+
+        .step-title {
+            font-family: 'Dancing Script', cursive;
+            font-size: 2.5rem;
+            color: #ff758c;
+            margin-bottom: 20px;
+        }
+
+        .step-message {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            margin-bottom: 25px;
+            color: #5a2a27;
+        }
+
+        .navigation-hint {
+            font-size: 0.9rem;
+            color: #ff7eb3;
+            margin-top: 25px;
+            font-style: italic;
+            opacity: 0.8;
+        }
+
+        /* Heart navigation container */
+        #hearts-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 15;
+        }
+
+        /* Navigation hearts */
+        .nav-heart {
+            position: absolute;
+            background: rgba(255, 126, 179, 0.9);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.5rem;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            z-index: 20;
+            transition: all 0.3s ease;
+            pointer-events: auto;
+            animation: pulseHeart 1.5s infinite;
+        }
+
+        .nav-heart:hover {
+            transform: scale(1.1);
+            background: rgba(255, 117, 140, 0.95);
+        }
+
+        .nav-heart.wrong {
+            background: rgba(200, 200, 200, 0.7);
+            animation: shake 0.5s ease;
+        }
+
+        /* Key navigation */
+        #nav-key {
+            position: absolute;
+            background: rgba(255, 215, 0, 0.9);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.5rem;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            z-index: 20;
+            transition: all 0.3s ease;
+            pointer-events: auto;
+            animation: pulseKey 1.5s infinite;
+        }
+
+        #nav-key:hover {
+            transform: scale(1.1);
+            background: rgba(218, 165, 32, 0.95);
+        }
+
+        /* Final screen */
+        #final-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #ff7eb3, #ff758c);
+            z-index: 30;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 1.5s ease-in-out;
+        }
+
+        #final-screen.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .final-content {
+            text-align: center;
+            padding: 20px;
+            max-width: 90%;
+        }
+
+        .final-title {
+            font-family: 'Dancing Script', cursive;
+            font-size: 4rem;
+            color: white;
+            margin-bottom: 30px;
+            text-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .final-message {
+            font-size: 1.3rem;
+            color: white;
+            line-height: 1.7;
+            margin-bottom: 20px;
+            max-width: 600px;
+        }
+
+        .signature {
+            font-family: 'Dancing Script', cursive;
+            font-size: 2.5rem;
+            color: white;
+            margin-top: 30px;
+            text-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Animations */
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes ripple {
+            to {
+                transform: translate(-50%, -50%) scale(2.5);
+                opacity: 0;
+            }
+        }
+
+        @keyframes fadeInOut {
+            0% { opacity: 0.5; }
+            50% { opacity: 1; }
+            100% { opacity: 0.5; }
+        }
+
+        @keyframes pulseHeart {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes pulseKey {
+            0% { transform: scale(1) rotate(0deg); }
+            25% { transform: scale(1.1) rotate(10deg); }
+            50% { transform: scale(1.2) rotate(0deg); }
+            75% { transform: scale(1.1) rotate(-10deg); }
+            100% { transform: scale(1) rotate(0deg); }
+        }
+
+        @keyframes shake {
+            0% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            50% { transform: translateX(5px); }
+            75% { transform: translateX(-5px); }
+            100% { transform: translateX(0); }
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(0) rotate(0deg);
+                opacity: 0.7;
+            }
+            50% {
+                transform: translateY(-30px) rotate(180deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(0) rotate(360deg);
+                opacity: 0.7;
+            }
+        }
+
+        /* Floating elements */
+        .floating {
+            position: absolute;
+            z-index: 5;
+            pointer-events: none;
+        }
+
+        .heart {
+            color: #ff758c;
+            font-size: 2rem;
+            animation: float 8s ease-in-out infinite;
+        }
+
+        .star {
+            color: gold;
+            font-size: 1.8rem;
+            animation: float 10s ease-in-out infinite;
+        }
+
+        .flower {
+            color: #ffb6c1;
+            font-size: 2.2rem;
+            animation: float 12s ease-in-out infinite;
+        }
+
+        /* Confetti effect */
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background-color: #f00;
+            opacity: 0.7;
+            border-radius: 0;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .countdown-title {
+                font-size: 2.5rem;
+            }
+            
+            #countdown-number {
+                font-size: 10rem;
+            }
+            
+            .step-title {
+                font-size: 2.2rem;
+            }
+            
+            .step-message {
+                font-size: 1rem;
+            }
+            
+            .final-title {
+                font-size: 3.2rem;
+            }
+            
+            .final-message {
+                font-size: 1.1rem;
+            }
+            
+            .nav-heart, #nav-key {
+                width: 50px;
+                height: 50px;
+                font-size: 1.3rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .countdown-title {
+                font-size: 2rem;
+            }
+            
+            #countdown-number {
+                font-size: 8rem;
+            }
+            
+            .step-title {
+                font-size: 1.8rem;
+            }
+            
+            .step-message {
+                font-size: 0.95rem;
+            }
+            
+            .step-content {
+                padding: 20px;
+            }
+            
+            .final-title {
+                font-size: 2.8rem;
+            }
+            
+            .final-message {
+                font-size: 1rem;
+            }
+            
+            .nav-heart, #nav-key {
+                width: 45px;
+                height: 45px;
+                font-size: 1.2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <!-- Countdown Screen -->
+        <div id="countdown-screen">
+            <h1 class="countdown-title">For My Beautiful Wife</h1>
+            <div id="countdown-number">18</div>
+            <p class="countdown-hint">Get ready for a journey through 18 reasons why I love you...</p>
+        </div>
+
+        <!-- Journey Container -->
+        <div id="journey-container">
+            <!-- Step Screens with personalized messages -->
+            <div class="step-screen" id="step1">
+                <div class="step-content">
+                    <div class="step-number">1</div>
+                    <h2 class="step-title">Your Eyes</h2>
+                    <p class="step-message">Your eyes are like deep oceans I could get lost in forever. They hold galaxies of emotion that speak to my soul without a word.</p>
+                    <p class="navigation-hint">Find the special heart to continue...</p>
+                </div>
+            </div>
+
+            <div class="step-screen" id="step2">
+                <div class="step-content">
+                    <div class="step-number">2</div>
+                    <h2 class="step-title">Your Smile</h2>
+                    <p class="step-message">Your smile lights up my world like nothing else. It's the sunrise after my darkest nights, warming my soul with its radiance.</p>
+                    <p class="navigation-hint">Look for the glowing heart...</p>
+                </div>
+            </div>
+
+            <div class="step-screen" id="step3">
+                <div class="step-content">
+                    <div class="step-number">3</div>
+                    <h2 class="step-title">Your Care</h2>
+                    <p class="step-message">The way you care for me, with such tenderness and compassion, shows the depth of your beautiful heart. You heal wounds with your kindness.</p>
+                    <p class="navigation-hint">Only one heart will take you forward...</p>
+                </div>
+            </div>
+
+            <div class="step-screen" id="step4">
+                <div class="step-content">
+                    <div class="step-number">4</div>
+                    <h2 class="step-title">Your Presence</h2>
+                    <p class="step-message">You are the bright moon in my dark life, guiding me through every storm. Your presence alone brings peace to my chaotic world.</p>
+                    <p class="navigation-hint">Find the right heart to proceed...</p>
+                </div>
+            </div>
+
+            <div class="step-screen" id="step5">
+                <div class="step-content">
+                    <div class="step-number">5</div>
+                    <h2 class="step-title">Childish Charm</h2>
+                    <p class="step-message">Your cute, childish behavior makes my heart dance with joy. That playful spirit and innocent wonder keep our love feeling young and fresh.</p>
+                    <p class="navigation-hint">Which heart is the real one?...</p>
+                </div>
+            </div>
+
+            <div class="step-screen" id="step6">
+                <div class="step-content">
+                    <div class="step-number">6</div>
+                    <h2 class="step-title">Your Anger</h2>
+                    <p class="step-message">Even your anger is beautiful - passionate and fierce. It shows how deeply you care, and how you fight for what matters.</p>
+                    <p class="navigation-hint">Find the heart that glows...</p>
+                </div>
+            </div>
+
+            <div class="step-screen" id="step7">
+                <div class="step-content">
+                    <div class="step-number">7</div>
+                    <h2 class="step-title">Your Patience</h2>
+                    <p class="step-message">Your patience with me, especially when I'm stubborn, shows a grace that humbles me. You teach me the true meaning of unconditional love.</p>
+                    <p class="navigation-hint">Only one heart will work...</p>
+                </div>
+            </div>
+
+            <div class="step-screen" id="step8">
+                <div class="step-content">
+                    <div class="step-number">8</div>
+                    <h2 class="step-title">Your Loyalty</h2>
+                    <p class="step-message">Your unwavering loyalty is the anchor of our relationship. Knowing you're always by my side gives me strength beyond measure.</p>
+                    <p class="navigation-hint">Find the special heart...</p>
+                </div>
+            </div>
+
+            <div class="step-screen" id="step9">
+                <div class="step-content">
+                    <div class="step-number">9</div>
+                    <h2 class="step-title">Choosing Me</h2>
+                    <p class="step-message">Your decision to choose me, to see something special in me, is the greatest gift I've ever received. I'll spend my life proving you right.</p>
+                    <p class="navigation-hint">The real heart is waiting...</p>
+                </div>
+            </div>
+
+            <div class="step-screen" id="step10">
+                <div class="step-content">
+                    <div class="step-number">10</div>
+                    <h2 class="step-title">First Meeting</h2>
+                    <p class="step-message">That first time we met, time stood still. I knew in that moment my life had changed forever. You were the missing piece I didn't know I needed.</p>
+                    <p class="navigation-hint">Find the heart to proceed...</p>
+                </div>
+            </div>
+
+            <div class="step-screen" id="step11">
+                <div class="step-content">
+                    <div class="step-number">11</div>
+                    <h2 class="step-title">The Train Hug</h2>
+                    <p class="step-message">Our hug on the train - that moment lives in my bones. The way you held me as if you'd never let go, it healed parts of me I thought were broken forever.</p>
+                    <p class="navigation-hint">Look for the moving heart...</p>
+                </div>
+            </div>
+
+            <div class="step-screen" id="step12">
+                <div class="step-content">
+                    <div class="step-number">12</div>
+                    <h2 class="step-title">Naughty Adventures</h2>
+                    <p class="step-message">All our secret naughty adventures - in school van, in classroom, in park, in van when we went with our friends. These memories make me blush and smile even now.</p>
+                    <p class="navigation-hint">The heart is hiding somewhere...</p>
+                </div>
+            </div>
+
+            <div class="step-screen" id="step13">
+                <div class="step-content">
+                    <div class="step-number">13</div>
+                    <h2 class="step-title">School Days Love</h2>
+                    <p class="step-message">Our school days love was so pure and intense. Passing notes, secret chats, those shy glances across the classroom - I wouldn't trade those memories for anything.</p>
+                    <p class="navigation-hint">Find the heart to continue...</p>
+                </div>
+            </div>
+
+            <div class="step-screen" id="step14">
+                <div class="step-content">
+                    <div class="step-number">14</div>
+                    <h2 class="step-title">Four Birthdays</h2>
+                    <p class="step-message">This is the fourth birthday I've celebrated with you. Each one has been more special than the last, watching you grow into the amazing woman you are today.</p>
+                    <p class="navigation-hint">Look for the heart again...</p>
+                </div>
+            </div>
+
+            <div class="step-screen" id="step15">
+                <div class="step-content">
+                    <div class="step-number">15</div>
+                    <h2 class="step-title">Commitment at 15</h2>
+                    <p class="step-message">At just 15, you chose to confess to us. That decision changed both our lives. Your courage to love so deeply so young still amazes me.</p>
+                    <p class="navigation-hint">The heart is waiting for you...</p>
+                </div>
+            </div>
+
+            <div class="step-screen" id="step16">
+                <div class="step-content">
+                    <div class="step-number">16</div>
+                    <h2 class="step-title">Hard Times</h2>
+                    <p class="step-message">Through all our hard times, you never wavered. Your strength held us together when I was falling apart. You're my shelter in every storm.</p>
+                    <p class="navigation-hint">Find the heart to proceed...</p>
+                </div>
+            </div>
+
+            <div class="step-screen" id="step17">
+                <div class="step-content">
+                    <div class="step-number">17</div>
+                    <h2 class="step-title">Never Giving Up</h2>
+                    <p class="step-message">You never gave up on us, even when I gave you reasons to. That stubborn faith in our love saved us more times than I can count.</p>
+                    <p class="navigation-hint">Look for the moving heart...</p>
+                </div>
+            </div>
+
+            <div class="step-screen" id="step18">
+                <div class="step-content">
+                    <div class="step-number">18</div>
+                    <h2 class="step-title">Our Future</h2>
+                    <p class="step-message">I can't wait to continue our life together. Every day with you is a gift, and I promise to cherish each one as we build our forever.</p>
+                    <p class="navigation-hint">Find the key to unlock your surprise...</p>
+                </div>
+            </div>
+
+            <!-- Hearts Container -->
+            <div id="hearts-container"></div>
+
+            <!-- Key Navigation -->
+            <button id="nav-key">
+                <i class="fas fa-key"></i>
+            </button>
+        </div>
+
+        <!-- Final Screen -->
+        <div id="final-screen">
+            <div class="final-content">
+                <h1 class="final-title">Happy 18th Birthday Wifey!</h1>
+                <p class="final-message">My dearest love, today we celebrate not just your birthday, but the incredible woman you've become. These 18 steps represent just a fraction of why I adore you.</p>
+                <p class="final-message">From your beautiful eyes that first captured me to your unwavering loyalty that anchors us, every part of you is perfect to me. Thank you for four amazing years of love, laughter, and growth.</p>
+                <p class="final-message">May this year bring you all the joy you've brought into my life. I can't wait to continue our journey together, creating more memories and sharing more love.</p>
+                <p class="signature">Forever yours,<br>Your Loving Hubby</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Current step tracking
+            let currentStep = 0;
+            const totalSteps = 18;
+            
+            // Elements
+            const countdownScreen = document.getElementById('countdown-screen');
+            const countdownNumber = document.getElementById('countdown-number');
+            const journeyContainer = document.getElementById('journey-container');
+            const stepScreens = document.querySelectorAll('.step-screen');
+            const heartsContainer = document.getElementById('hearts-container');
+            const navKey = document.getElementById('nav-key');
+            const finalScreen = document.getElementById('final-screen');
+            
+            // Floating elements
+            const floatingContainer = document.createElement('div');
+            floatingContainer.classList.add('floating-container');
+            document.getElementById('journey-container').appendChild(floatingContainer);
+            
+            // Create floating elements
+            function createFloatingElements() {
+                for (let i = 0; i < 25; i++) {
+                    const types = ['heart', 'star', 'flower'];
+                    const type = types[Math.floor(Math.random() * types.length)];
+                    
+                    const element = document.createElement('div');
+                    element.classList.add('floating', type);
+                    element.innerHTML = type === 'heart' ? '❤' : type === 'star' ? '★' : '❀';
+                    
+                    // Random position
+                    element.style.left = `${Math.random() * 100}%`;
+                    element.style.top = `${Math.random() * 100}%`;
+                    
+                    // Random animation delay
+                    element.style.animationDelay = `${Math.random() * 5}s`;
+                    
+                    floatingContainer.appendChild(element);
+                }
+            }
+            
+            // Start countdown
+            function startCountdown() {
+                let count = 18;
+                const countdownInterval = setInterval(() => {
+                    countdownNumber.textContent = count;
+                    
+                    // Create ripple effect
+                    const ripple = document.createElement('div');
+                    ripple.style.position = 'absolute';
+                    ripple.style.width = '200px';
+                    ripple.style.height = '200px';
+                    ripple.style.borderRadius = '50%';
+                    ripple.style.border = '4px solid rgba(255, 255, 255, 0.3)';
+                    ripple.style.top = '50%';
+                    ripple.style.left = '50%';
+                    ripple.style.transform = 'translate(-50%, -50%) scale(0)';
+                    ripple.style.animation = 'ripple 1.5s ease-out';
+                    
+                    countdownScreen.appendChild(ripple);
+                    
+                    // Remove ripple after animation
+                    setTimeout(() => {
+                        ripple.remove();
+                    }, 1500);
+                    
+                    count--;
+                    
+                    if (count < 0) {
+                        clearInterval(countdownInterval);
+                        // Transition to journey
+                        countdownScreen.style.transform = 'scale(1.5)';
+                        countdownScreen.style.opacity = '0';
+                        setTimeout(() => {
+                            countdownScreen.style.display = 'none';
+                            journeyContainer.style.display = 'flex';
+                            stepScreens[0].classList.add('active');
+                            createFloatingElements();
+                            showStep(0);
+                        }, 1500);
+                    }
+                }, 1000);
+            }
+            
+            // Generate random position avoiding message area
+            function getRandomPosition() {
+                const minDistanceFromCenter = 30; // percentage
+                const minDistanceFromEdge = 10; // percentage
+                
+                let x, y;
+                let validPosition = false;
+                let attempts = 0;
+                
+                while (!validPosition && attempts < 100) {
+                    // Generate random position
+                    x = minDistanceFromEdge + Math.random() * (100 - 2 * minDistanceFromEdge);
+                    y = minDistanceFromEdge + Math.random() * (100 - 2 * minDistanceFromEdge);
+                    
+                    // Calculate distance from center
+                    const centerX = 50;
+                    const centerY = 50;
+                    const distance = Math.sqrt(Math.pow(x - centerX, 2) + Math.pow(y - centerY, 2));
+                    
+                    // Check if it's far enough from center
+                    if (distance > minDistanceFromCenter) {
+                        validPosition = true;
+                    }
+                    
+                    attempts++;
+                }
+                
+                // If we didn't find a valid position, just use the edge
+                if (!validPosition) {
+                    x = Math.random() > 0.5 ? minDistanceFromEdge : 100 - minDistanceFromEdge;
+                    y = Math.random() > 0.5 ? minDistanceFromEdge : 100 - minDistanceFromEdge;
+                }
+                
+                return { x, y };
+            }
+            
+            // Create hearts for the current step
+            function createHeartsForStep() {
+                // Clear previous hearts
+                heartsContainer.innerHTML = '';
+                
+                // Number of hearts (4 fake, 1 real)
+                const heartCount = 5;
+                const correctHeartIndex = Math.floor(Math.random() * heartCount);
+                
+                // Create hearts
+                for (let i = 0; i < heartCount; i++) {
+                    const isCorrect = i === correctHeartIndex;
+                    const heart = document.createElement('button');
+                    heart.className = 'nav-heart';
+                    heart.innerHTML = '<i class="fas fa-heart"></i>';
+                    
+                    // Position the heart
+                    const position = getRandomPosition();
+                    heart.style.top = `${position.y}%`;
+                    heart.style.left = `${position.x}%`;
+                    
+                    // Add click event
+                    heart.addEventListener('click', function() {
+                        if (isCorrect) {
+                            // Move to next step
+                            currentStep++;
+                            if (currentStep < totalSteps) {
+                                showStep(currentStep);
+                            }
+                        } else {
+                            // Wrong heart animation
+                            this.classList.add('wrong');
+                            setTimeout(() => {
+                                this.remove();
+                            }, 500);
+                        }
+                    });
+                    
+                    heartsContainer.appendChild(heart);
+                }
+            }
+            
+            // Navigation functions
+            function showStep(stepIndex) {
+                // Hide all steps
+                stepScreens.forEach(screen => {
+                    screen.classList.remove('active');
+                });
+                
+                // Show current step
+                stepScreens[stepIndex].classList.add('active');
+                
+                // Hide key initially
+                navKey.style.display = 'none';
+                
+                // For steps 1-17, create hearts
+                if (stepIndex < totalSteps - 1) {
+                    createHeartsForStep();
+                } else {
+                    // For the last step, show the key
+                    const position = getRandomPosition();
+                    navKey.style.top = `${position.y}%`;
+                    navKey.style.left = `${position.x}%`;
+                    navKey.style.display = 'flex';
+                }
+            }
+            
+            // Set up key button
+            navKey.addEventListener('click', () => {
+                // Final screen
+                journeyContainer.style.display = 'none';
+                finalScreen.classList.add('active');
+                
+                // Create confetti
+                createConfetti();
+            });
+            
+            // Confetti effect for final screen
+            function createConfetti() {
+                const colors = ['#ff758c', '#ff7eb3', '#ffafbd', '#ffd8cb', '#ffb6c1', '#ffccd5'];
+                
+                for (let i = 0; i < 200; i++) {
+                    const confetti = document.createElement('div');
+                    confetti.classList.add('confetti');
+                    confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                    confetti.style.left = `${Math.random() * 100}%`;
+                    confetti.style.top = `${Math.random() * 100}%`;
+                    confetti.style.transform = `rotate(${Math.random() * 360}deg)`;
+                    confetti.style.width = `${Math.random() * 10 + 5}px`;
+                    confetti.style.height = `${Math.random() * 10 + 5}px`;
+                    
+                    finalScreen.appendChild(confetti);
+                    
+                    // Animate confetti falling
+                    const duration = Math.random() * 3 + 2;
+                    confetti.animate([
+                        { transform: `translateY(-100px) rotate(0deg)`, opacity: 1 },
+                        { transform: `translateY(${window.innerHeight}px) rotate(${Math.random() * 360}deg)`, opacity: 0.5 }
+                    ], {
+                        duration: duration * 1000,
+                        easing: "cubic-bezier(0.1, 0.8, 0.2, 1)"
+                    });
+                    
+                    // Remove after animation
+                    setTimeout(() => confetti.remove(), duration * 1000);
+                }
+                
+                // Create floating hearts on final screen
+                for (let i = 0; i < 40; i++) {
+                    const heart = document.createElement('div');
+                    heart.innerHTML = '❤';
+                    heart.classList.add('floating', 'heart');
+                    heart.style.color = colors[Math.floor(Math.random() * colors.length)];
+                    heart.style.fontSize = `${Math.random() * 2 + 1.5}rem`;
+                    heart.style.left = `${Math.random() * 100}%`;
+                    heart.style.top = `${Math.random() * 100}%`;
+                    heart.style.animationDelay = `${Math.random() * 5}s`;
+                    heart.style.animationDuration = `${Math.random() * 5 + 5}s`;
+                    
+                    finalScreen.appendChild(heart);
+                }
+            }
+            
+            // Start the experience
+            startCountdown();
+        });
+    </script>
+</body>
+</html>
